@@ -8,13 +8,10 @@ public class Person {
     private String email;
     private int id;
 
-    public int getId() {
-        return id;
-    }
 
     public Person(String username, String email) {
-    this.username = username;
-    this.email = email;
+        this.username = username;
+        this.email = email;
     }
 
     public String getUsername() {
@@ -23,6 +20,10 @@ public class Person {
 
     public String getEmail() {
         return email;
+    }
+
+    public int getId(){
+        return id;
     }
     public void save() {
         try(Connection con = DB.sql2o.open()) {
@@ -36,7 +37,7 @@ public class Person {
 
     public static Person find(int id) {
         try(Connection con = DB.sql2o.open()) {
-            String sql = "SELECT * FROM persons where id=:id";
+            String sql = "SELECT * FROM persons where id = :id";
             Person person = con.createQuery(sql)
                     .addParameter("id", id)
                     .executeAndFetchFirst(Person.class);
