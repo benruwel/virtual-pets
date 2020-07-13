@@ -1,3 +1,4 @@
+import java.sql.Timestamp;
 import java.util.List;
 import java.util.Timer;
 import org.sql2o.*;
@@ -5,7 +6,9 @@ import org.sql2o.*;
 public class WaterMonster extends Monster {
 
     private int waterLevel;
+    public Timestamp lastWater;
     public static final int MAX_WATER_LEVEL = 8;
+    public static final String DATABASE_TYPE = "water";
 
     public WaterMonster(String name, int personId) {
         this.name = name;
@@ -14,6 +17,7 @@ public class WaterMonster extends Monster {
         sleepLevel = MAX_SLEEP_LEVEL / 2;
         foodLevel = MAX_FOOD_LEVEL / 2;
         waterLevel = MAX_WATER_LEVEL / 2;
+        type = DATABASE_TYPE;
         timer = new Timer();
     }
 
@@ -22,7 +26,7 @@ public class WaterMonster extends Monster {
     }
 
     @Override
-    public void depletedLevels(){
+    public void depleteLevels(){
         if (isAlive()){
             playLevel--;
             foodLevel--;
@@ -46,13 +50,24 @@ public class WaterMonster extends Monster {
         if (waterLevel >= MAX_WATER_LEVEL){
             throw new UnsupportedOperationException("You cannot water your pet any more!");
         }
+        try(Connection con = DB.sql2o.open()) {
+            String sql = "UPDATE monsters SET lastwater = now() WHERE id = :id";
+            con.createQuery(sql)
+                    .addParameter("id", id)
+                    .executeUpdate();
+        }
         waterLevel++;
+    }
+    public Timestamp getLastWater(){
+        return lastWater;
     }
 
     public static List<WaterMonster> all() {
-        String sql = "SELECT * FROM monsters";
+        String sql = "SELECT * FROM monsters WHERE type = 'water';";
         try(Connection con = DB.sql2o.open()) {
-            return con.createQuery(sql).executeAndFetch(WaterMonster.class);
+            return con.createQuery(sql)
+                    .throwOnMappingFailure(false)
+                    .executeAndFetch(WaterMonster.class);
         }
     }
     public static WaterMonster find(int id) {
@@ -60,6 +75,7 @@ public class WaterMonster extends Monster {
             String sql = "SELECT * FROM monsters where id = :id";
             WaterMonster waterMonster = con.createQuery(sql)
                     .addParameter("id", id)
+                    .throwOnMappingFailure(false)
                     .executeAndFetchFirst(WaterMonster.class);
             return waterMonster;
         }

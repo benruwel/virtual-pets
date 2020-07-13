@@ -2,6 +2,7 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import java.util.Arrays;
+import java.util.List;
 
 import static org.junit.Assert.*;
 
@@ -40,11 +41,11 @@ public class PersonTest {
     public void getMonsters_retrievesAllMonstersFromDatabase_monstersList() {
         Person testPerson = new Person("Henry", "henry@henry.com");
         testPerson.save();
-        Monster firstMonster = new Monster("Bubbles", testPerson.getId());
+        FireMonster firstMonster = new FireMonster("Bubbles", testPerson.getId());
         firstMonster.save();
-        Monster secondMonster = new Monster("Spud", testPerson.getId());
+        WaterMonster secondMonster = new WaterMonster("Spud", testPerson.getId());
         secondMonster.save();
-        Monster[] monsters = new Monster[] { firstMonster, secondMonster };
+        Object[] monsters = new Object[] { firstMonster, secondMonster };
         assertTrue(testPerson.getMonsters().containsAll(Arrays.asList(monsters)));
     }
 
@@ -64,15 +65,15 @@ public class PersonTest {
         secondPerson.save();
         assertEquals(Person.find(secondPerson.getId()), secondPerson);
     }
+    @Test
+    public void leaveCommunity_removesAssociationWithSpecifiedCommunity() {
+        Community testCommunity = new Community("Fire Enthusiasts", "Flame on!");
+        testCommunity.save();
+        Person testPerson = new Person("Henry", "henry@henry.com");
+        testPerson.save();
+        testPerson.leaveCommunity(testCommunity);
+        List savedCommunities = testPerson.getCommunities();
+        assertEquals(0, savedCommunities.size());
+    }
 
-//    @Override
-//    public boolean equals(Object otherPerson){
-//        if (!(otherPerson instanceof Person)) {
-//            return false;
-//        } else {
-//            Person newPerson = (Person) otherPerson;
-//            return this.getUsername.equals(newPerson.getUsername()) &&
-//                    this.getEmail().equals(newPerson.getEmail());
-//        }
-//    }
 }

@@ -65,7 +65,7 @@ public class WaterMonsterTest {
     @Test
     public void depleteLevels_reducesAllLevels() {
         WaterMonster testWaterMonster = new WaterMonster("Bubbles", 1);
-        testWaterMonster.depletedLevels();
+        testWaterMonster.depleteLevels();
         assertEquals(testWaterMonster.getFoodLevel(), (WaterMonster.MAX_FOOD_LEVEL / 2) - 1);
         assertEquals(testWaterMonster.getSleepLevel(), (WaterMonster.MAX_SLEEP_LEVEL / 2) - 1);
         assertEquals(testWaterMonster.getPlayLevel(), (WaterMonster.MAX_PLAY_LEVEL / 2) - 1);
@@ -76,7 +76,7 @@ public class WaterMonsterTest {
     public void isAlive_recognizesWaterMonsterIsDeadWhenLevelsReachMinimum_false() {
         WaterMonster testWaterMonster = new WaterMonster("Bubbles", 1);
         for (int i = WaterMonster.MIN_ALL_LEVELS; i <= WaterMonster.MAX_FOOD_LEVEL; i++) {
-            testWaterMonster.depletedLevels();
+            testWaterMonster.depleteLevels();
         }
         assertEquals(testWaterMonster.isAlive(), false);
     }
@@ -213,7 +213,7 @@ public class WaterMonsterTest {
     }
 
     @Test
-    public void waterWaterMonster_instantiatesWithHalfFullWaterLevel() {
+    public void water_instantiatesWithHalfFullWaterLevel() {
         WaterMonster testWaterMonster = new WaterMonster("Drippy", 1);
         assertEquals(testWaterMonster.getWaterLevel(), (WaterMonster.MAX_WATER_LEVEL / 2));
     }
@@ -224,5 +224,14 @@ public class WaterMonsterTest {
         for (int i = WaterMonster.MIN_ALL_LEVELS; i <= (WaterMonster.MAX_WATER_LEVEL); i++) {
             testWaterWaterMonster.water();
         }
+    }
+    @Test
+    public void water_recordsTimeLastWaterInDatabase() {
+        WaterMonster testWaterMonster = new WaterMonster("Bubbles", 1);
+        testWaterMonster.save();
+        testWaterMonster.water();
+        Timestamp savedWaterMonsterLastWater = WaterMonster.find(testWaterMonster.getId()).getLastWater();
+        Timestamp rightNow = new Timestamp(new Date().getTime());
+        assertEquals(DateFormat.getDateTimeInstance().format(rightNow), DateFormat.getDateTimeInstance().format(savedWaterMonsterLastWater));
     }
 }

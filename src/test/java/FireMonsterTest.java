@@ -56,7 +56,7 @@ public class FireMonsterTest {
     @Test
     public void depleteLevels_reducesAllLevels(){
         FireMonster testFireMonster = new FireMonster("Bubbles", 1);
-        testFireMonster.depletedLevels();
+        testFireMonster.depleteLevels();
         assertEquals(testFireMonster.getFoodLevel(), (FireMonster.MAX_FOOD_LEVEL / 2) - 1);
         assertEquals(testFireMonster.getSleepLevel(), (FireMonster.MAX_SLEEP_LEVEL / 2) - 1);
         assertEquals(testFireMonster.getPlayLevel(), (FireMonster.MAX_PLAY_LEVEL / 2) - 1);
@@ -66,7 +66,7 @@ public class FireMonsterTest {
     public void isAlive_recognizesFireMonsterIsDeadWhenLevelsReachMinimum_false(){
         FireMonster testFireMonster = new FireMonster("Bubbles", 1);
         for(int i = FireMonster.MIN_ALL_LEVELS; i <= FireMonster.MAX_FOOD_LEVEL; i++){
-            testFireMonster.depletedLevels();
+            testFireMonster.depleteLevels();
         }
         assertEquals(testFireMonster.isAlive(), false);
     }
@@ -201,5 +201,14 @@ public class FireMonsterTest {
         for(int i = FireMonster.MIN_ALL_LEVELS; i <= (FireMonster.MAX_FIRE_LEVEL); i++){
             testFireMonster.kindling();
         }
+    }
+    @Test
+    public void kindling_recordsTimeLastKindlingInDatabase() {
+        FireMonster testFireMonster = new FireMonster("Bubbles", 1);
+        testFireMonster.save();
+        testFireMonster.kindling();
+        Timestamp savedFireMonsterLastKindling = FireMonster.find(testFireMonster.getId()).getLastKindling();
+        Timestamp rightNow = new Timestamp(new Date().getTime());
+        assertEquals(DateFormat.getDateTimeInstance().format(rightNow), DateFormat.getDateTimeInstance().format(savedFireMonsterLastKindling));
     }
 }
